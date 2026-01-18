@@ -1,5 +1,5 @@
 /*************************************************
- 🔥 FIREBASE CONFIG
+ 🔥 FIREBASE INITIALIZATION (MUST BE FIRST)
 *************************************************/
 const firebaseConfig = {
   apiKey: "AIzaSyDnJSn5ttZYpHlglJ0suze4obmDxE5A5ZU",
@@ -8,7 +8,44 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
 const db = firebase.firestore();
+
+/*************************************************
+ 🔐 FIREBASE AUTH (LOGIN / LOGOUT)
+*************************************************/
+function login(e) {
+  e.preventDefault();
+
+  const emailEl = document.getElementById("loginEmail");
+  const passEl = document.getElementById("loginPass");
+
+  if (!emailEl || !passEl) {
+    alert("Login inputs not found");
+    return;
+  }
+
+  const email = emailEl.value.trim();
+  const password = passEl.value.trim();
+
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(err => alert(err.message));
+}
+
+function logout() {
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById("loginWrapper").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  } else {
+    document.getElementById("loginWrapper").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+  }
+});
 
 /*************************************************
  🔧 GLOBAL STATE
@@ -85,7 +122,7 @@ function saveProject(e) {
   };
 
   if (!data.product || !data.country || !data.status) {
-    alert("Product, Country, and Status are required");
+    alert("Product, Country and Status are required");
     return;
   }
 
@@ -102,13 +139,13 @@ function saveProject(e) {
  🗑 DELETE PROJECT
 *************************************************/
 function deleteProject(id) {
-  if (confirm("Are you sure you want to delete this project?")) {
+  if (confirm("Delete this project?")) {
     db.collection("projects").doc(id).delete();
   }
 }
 
 /*************************************************
- 📥 REAL-TIME DATA LOAD
+ 📥 REAL-TIME FIRESTORE LOAD
 *************************************************/
 db.collection("projects")
   .orderBy("created", "desc")
@@ -126,7 +163,6 @@ db.collection("projects")
 function applyFilters() {
   let filtered = [...projects];
 
-  // Status filter
   if (statusFilter.value) {
     const s = statusFilter.value.toLowerCase();
     filtered = filtered.filter(p =>
@@ -134,7 +170,6 @@ function applyFilters() {
     );
   }
 
-  // Country filter (partial + case-insensitive)
   if (countryFilter.value.trim()) {
     const c = countryFilter.value.trim().toLowerCase();
     filtered = filtered.filter(p =>
@@ -142,7 +177,6 @@ function applyFilters() {
     );
   }
 
-  // Date range filter
   const from = fromDate.value ? new Date(fromDate.value) : null;
   const to = toDate.value ? new Date(toDate.value) : null;
 
@@ -188,7 +222,7 @@ function renderTable(list) {
 }
 
 /*************************************************
- 📊 STATS
+ 📊 DASHBOARD STATS
 *************************************************/
 function updateStats(list) {
   total.innerText = list.length;
@@ -198,7 +232,7 @@ function updateStats(list) {
 }
 
 /*************************************************
- 📈 CHART (CONTROLLED SIZE)
+ 📈 STATUS CHART (SAFE SIZE)
 *************************************************/
 function renderChart(list) {
   const counts = {
@@ -233,16 +267,14 @@ function renderChart(list) {
       maintainAspectRatio: false,
       cutout: "65%",
       plugins: {
-        legend: {
-          position: "bottom"
-        }
+        legend: { position: "bottom" }
       }
     }
   });
 }
 
 /*************************************************
- 📤 EXPORT CSV (EXCEL)
+ 📤 EXPORT TO EXCEL (CSV)
 *************************************************/
 function exportExcel() {
   let csv = "Product,Country,Status,Start Date,End Date,Pages,Zoho Sheet\n";
