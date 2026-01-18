@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Migration Project Dashboard</title>
+
+<!-- Styles -->
+<link rel="stylesheet" href="style.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="topbar">
+  <div>
+    <h2>🚀 Migration Dashboard</h2>
+    <p class="subtitle">Enterprise project migration tracking</p>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="exportExcel()">⬇ Export Excel</button>
+    <button class="primary" onclick="openModal()">+ New Project</button>
+  </div>
+</header>
+
+<!-- ================= STATS ================= -->
+<section class="stats">
+  <div class="card">
+    <span>Total Projects</span>
+    <h1 id="total">0</h1>
+  </div>
+  <div class="card pending">
+    <span>Pending</span>
+    <h1 id="pending">0</h1>
+  </div>
+  <div class="card issue">
+    <span>Issues</span>
+    <h1 id="issue">0</h1>
+  </div>
+  <div class="card released">
+    <span>Released</span>
+    <h1 id="released">0</h1>
+  </div>
+</section>
+
+<!-- ================= FILTERS ================= -->
+<section class="filters">
+  <select id="statusFilter" onchange="applyFilters()">
+    <option value="">All Status</option>
+    <option>Yet to Start</option>
+    <option>Pending</option>
+    <option>Issue</option>
+    <option>Released</option>
+    <option>Updated to Local</option>
+  </select>
+
+<input 
+  type="text" 
+  id="countryFilter" 
+  placeholder="Filter by country"
+  oninput="applyFilters()">
+
+
+  <input type="date" id="fromDate">
+  <input type="date" id="toDate">
+
+  <button class="secondary" onclick="applyFilters()">Apply</button>
+</section>
+
+<!-- ================= CHART ================= -->
+<section class="chart-wrapper">
+  <canvas id="statusChart"></canvas>
+</section>
+
+
+<!-- ================= TABLE ================= -->
+<table>
+<thead>
+<tr>
+  <th>Product</th>
+  <th>Country</th>
+  <th>Status</th>
+  <th>Start Date</th>
+  <th>End Date</th>
+  <th>Pages</th>
+  <th>Zoho Sheet</th>
+  <th>Actions</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<!-- ================= MODAL ================= -->
+<div class="modal" id="modal">
+  <form class="modal-content" onsubmit="saveProject(event)">
+    <h3>Add / Edit Migration Project</h3>
+
+    <label>Product Name *</label>
+    <input id="product" required>
+
+
+  <label>Country *</label>
+<input id="country" placeholder="Enter country name" required>
+
+
+    <label>Status</label>
+    <select id="status">
+      <option>Yet to Start</option>
+      <option>Pending</option>
+      <option>Issue</option>
+      <option>Released</option>
+      <option>Updated to Local</option>
+    </select>
+
+    <div class="grid">
+      <div>
+        <label>Start Date</label>
+        <input type="date" id="start">
+      </div>
+      <div>
+        <label>End Date</label>
+        <input type="date" id="end">
+      </div>
+    </div>
+
+    <label>Pages Count</label>
+    <input type="number" id="pages">
+
+    <label>Zoho Sheet URL</label>
+    <input type="url" id="zoho" placeholder="https://sheet.zoho.com/...">
+
+    <div class="actions">
+      <button type="submit" class="primary">Save Project</button>
+      <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script src="script.js"></script>
+
+</body>
+</html>
